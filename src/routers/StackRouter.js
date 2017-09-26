@@ -117,7 +117,7 @@ export default (
           route = initialChildRouter.getStateForAction(
             NavigationActions.navigate({
               routeName: initialRouteName,
-              params: initialRouteParams,
+              params: initialRouteParams || action.params ,
             })
           );
         }

@@ -11,6 +11,7 @@ node_modules
 lib-rn
 lib
 yarn-error.log
+.svn
 
 # OS X
 .DS_Store

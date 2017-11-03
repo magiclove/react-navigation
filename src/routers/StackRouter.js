@@ -38,6 +38,9 @@ export default (
   const childRouters = {};
   const routeNames = Object.keys(routeConfigs);
 
+  console.log('开始解析路由配置...');
+  console.log(JSON.stringify(routeConfigs))
+
   routeNames.forEach((routeName: string) => {
     const screen = getScreenForRouteName(routeConfigs, routeName);
     if (screen && screen.router) {
@@ -49,12 +52,17 @@ export default (
     }
   });
 
+  console.log('路由配置解析结果:');
+  console.log(JSON.stringify(childRouters))
+
   const { initialRouteParams } = stackConfig;
 
   const initialRouteName = stackConfig.initialRouteName || routeNames[0];
 
   const initialChildRouter = childRouters[initialRouteName];
   const paths = stackConfig.paths || {};
+
+  console.log('初始化路由名称为：' + initialRouteName + ' 是否为子路由：' + initialChildRouter ? 'true' : 'false')
 
   routeNames.forEach((routeName: string) => {
     let pathPattern = paths[routeName] || routeConfigs[routeName].path;
@@ -94,12 +102,29 @@ export default (
 
       // Set up the initial state if needed
       if (!state) {
+        console.log('开始初始化初始路由为' + initialRouteName + '的路由状态...');
         let route = {};
         if (
           action.type === NavigationActions.NAVIGATE &&
           childRouters[action.routeName] !== undefined
         ) {
-          return {
+          // if(childRouters[action.routeName]) {
+          //     const childRouter = childRouters[action.routeName];
+          //     state = {
+          //         index: 0,
+          //         routes: [
+          //             {
+          //                 ...action,
+          //                 ...childRouter.getStateForAction(action),
+          //                 type: undefined,
+          //                 key: `Init-${_getUuid()}`,
+          //             },
+          //         ],
+          //     };
+          //     console.log('返回状态：' + JSON.stringify(state));
+          //     return state;
+          // }
+          state = {
             index: 0,
             routes: [
               {
@@ -109,14 +134,18 @@ export default (
               },
             ],
           };
+          console.log('返回状态：' + JSON.stringify(state));
+          return state;
         }
         if (initialChildRouter) {
+          console.log('初始化路由为子路由时，获取子路由的初始路由');
           route = initialChildRouter.getStateForAction(
             NavigationActions.navigate({
               routeName: initialRouteName,
               params: initialRouteParams,
             })
           );
+          console.log(initialRouteName + '的初始路由为：' + JSON.stringify(route))
         }
         const params = (route.params ||
           action.params ||
@@ -136,6 +165,8 @@ export default (
           index: 0,
           routes: [route],
         };
+        console.log('初始路由为' + initialRouteName + '的路由状态为：' + JSON.stringify(state));
+        return state;
       }
 
       // Check if a child scene wants to handle the action as long as it is not a reset to the root stack

@@ -1,12 +1,13 @@
 /* @flow */
 
-import React, { PureComponent } from 'react';
+import * as React from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import { TabBar } from 'react-native-tab-view';
 import TabBarIcon from './TabBarIcon';
 
 import type {
   NavigationAction,
+  NavigationRoute,
   NavigationScreenProp,
   NavigationState,
   ViewStyleProp,
@@ -15,46 +16,39 @@ import type {
 
 import type { TabScene } from './TabView';
 
-type DefaultProps = {
-  activeTintColor: string,
-  inactiveTintColor: string,
-  showIcon: boolean,
-  showLabel: boolean,
-  upperCaseLabel: boolean,
-};
-
 type Props = {
   activeTintColor: string,
   inactiveTintColor: string,
   showIcon: boolean,
   showLabel: boolean,
   upperCaseLabel: boolean,
+  allowFontScaling: boolean,
   position: Animated.Value,
-  navigation: NavigationScreenProp<NavigationState, NavigationAction>,
+  navigation: NavigationScreenProp<NavigationState>,
   jumpToIndex: (index: number) => void,
-  getLabel: (scene: TabScene) => ?(React.Element<*> | string),
+  getLabel: (scene: TabScene) => ?(React.Node | string),
   getOnPress: (
+    previousScene: NavigationRoute,
     scene: TabScene
-  ) => (scene: TabScene, jumpToIndex: (index: number) => void) => void,
+  ) => ({
+    previousScene: NavigationRoute,
+    scene: TabScene,
+    jumpToIndex: (index: number) => void,
+  }) => void,
   renderIcon: (scene: TabScene) => React.Element<*>,
   labelStyle?: TextStyleProp,
   iconStyle?: ViewStyleProp,
 };
 
-export default class TabBarTop extends PureComponent<
-  DefaultProps,
-  Props,
-  void
-> {
+export default class TabBarTop extends React.PureComponent<Props> {
   static defaultProps = {
     activeTintColor: '#fff',
     inactiveTintColor: '#fff',
     showIcon: false,
     showLabel: true,
     upperCaseLabel: true,
+    allowFontScaling: true,
   };
-
-  props: Props;
 
   _renderLabel = (scene: TabScene) => {
     const {
@@ -65,6 +59,7 @@ export default class TabBarTop extends PureComponent<
       showLabel,
       upperCaseLabel,
       labelStyle,
+      allowFontScaling,
     } = this.props;
     if (showLabel === false) {
       return null;
@@ -86,7 +81,10 @@ export default class TabBarTop extends PureComponent<
     const label = this.props.getLabel({ ...scene, tintColor });
     if (typeof label === 'string') {
       return (
-        <Animated.Text style={[styles.label, { color }, labelStyle]}>
+        <Animated.Text
+          style={[styles.label, { color }, labelStyle]}
+          allowFontScaling={allowFontScaling}
+        >
           {upperCaseLabel ? label.toUpperCase() : label}
         </Animated.Text>
       );
@@ -125,12 +123,12 @@ export default class TabBarTop extends PureComponent<
   };
 
   _handleOnPress = (scene: TabScene) => {
-    const { getOnPress, jumpToIndex }: Props = this.props;
-
-    const onPress = getOnPress(scene);
+    const { getOnPress, jumpToIndex, navigation }: Props = this.props;
+    const previousScene = navigation.state.routes[navigation.state.index];
+    const onPress = getOnPress(previousScene, scene);
 
     if (onPress) {
-      onPress(scene, jumpToIndex);
+      onPress({ previousScene, scene, jumpToIndex });
     } else {
       jumpToIndex(scene.index);
     }

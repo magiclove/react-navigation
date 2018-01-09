@@ -78,6 +78,7 @@ export default (
           return {
             key: routeName,
             routeName,
+              params: action.params,
           };
         });
         state = {

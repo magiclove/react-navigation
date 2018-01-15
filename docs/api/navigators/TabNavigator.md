@@ -88,7 +88,6 @@ The route configs object is a mapping from route name to a route config, which t
 - `swipeEnabled` - Whether to allow swiping between tabs.
 - `animationEnabled` - Whether to animate when changing tabs.
 - `configureTransition` - a function that, given `currentTransitionProps` and `nextTransitionProps`, returns a configuration object that describes the animation between tabs.
-- `lazy` - Whether to lazily render tabs as needed as opposed to rendering them upfront.
 - `initialLayout` - Optional object containing the initial `height` and `width`, can be passed to prevent the one frame delay in [react-native-tab-view](https://github.com/react-native-community/react-native-tab-view#avoid-one-frame-delay) rendering.
 - `tabBarOptions` - Configure the tab bar, see below.
 
@@ -167,6 +166,10 @@ Generic title that can be used as a fallback for `headerTitle` and `tabBarLabel`
 #### `tabBarVisible`
 
 True or false to show or hide the tab bar, if not set then defaults to true.
+
+#### `swipeEnabled`
+
+True or false to enable or disable swiping between tabs, if not set then defaults to TabNavigatorConfig option swipeEnabled.
 
 #### `tabBarIcon`
 
